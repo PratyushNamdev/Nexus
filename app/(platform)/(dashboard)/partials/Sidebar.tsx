@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import { NavItem, Organization } from "./NavItem";
 
 interface SidebarProps {
   storageKey?: string;
@@ -42,5 +43,56 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       [id]: !expanded[id],
     }));
   };
-  return <div>Sidebar</div>;
+
+  if (!isLoadedOrg || !isLoadedOrgList || userMemberships.isLoading) {
+    return (
+      <>
+        <div className="flex items-center justify-between mb-2">
+          <Skeleton className="h-10 w-[50%] bg-slate-100" />
+          <Skeleton className="h-10 w-10 bg-slate-100" />
+        </div>
+        <div className="space-y-2 ">
+          <NavItem.Skeleton />
+          <NavItem.Skeleton />
+          <NavItem.Skeleton />
+          <NavItem.Skeleton />
+          <NavItem.Skeleton />
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="font-medium text-xs flex items-center mb-1">
+        <span className="pl-4 text-black">Workspaces</span>
+        <Button
+          asChild
+          size={"icon"}
+          variant={"ghost"}
+          type="button"
+          className="ml-auto"
+        >
+          <Link href={"/select-org"}>
+            <Plus className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+      <Accordion
+        type="multiple"
+        defaultValue={defaultAccordianValue}
+        className="space-y-2"
+      >
+        {userMemberships.data?.map((organization) => (
+          <NavItem
+            key={organization.id}
+            isActive={activeOrganization?.id === organization.organization.id}
+            isExpanded={expanded[organization.id]}
+            organization={organization.organization as Organization}
+            onExpand={onExpand}
+          />
+        ))}
+      </Accordion>
+    </>
+  );
 };
