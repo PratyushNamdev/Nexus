@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { unsplash } from "@/lib/unsplash";
-import { Check, Loader, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -17,6 +17,7 @@ interface FormPickerProps {
 export const FormPicker = ({ id, errors }: FormPickerProps) => {
   const { pending } = useFormStatus();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [images, setImages] = useState<Array<Record<string, any>>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImgId, setSelectedImgId] = useState(null);
@@ -28,6 +29,7 @@ export const FormPicker = ({ id, errors }: FormPickerProps) => {
           count: 9,
         });
         if (result && result.response) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const imgList = result.response as Array<Record<string, any>>;
           setImages(imgList);
         } else {

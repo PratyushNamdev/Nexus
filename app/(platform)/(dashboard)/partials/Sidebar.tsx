@@ -7,7 +7,6 @@ import { useOrganization, useOrganizationList } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
-import { Separator } from "@/components/ui/separator";
 import { NavItem, Organization } from "./NavItem";
 
 interface SidebarProps {
@@ -15,6 +14,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [expanded, setExpanded] = useLocalStorage<Record<string, any>>(
     storageKey,
     {}

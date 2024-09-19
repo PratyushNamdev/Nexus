@@ -14,7 +14,10 @@ export const Info = () => {
       <div className="w-[60px] h-[60px] relative">
         <Image
           fill
-          src={organization?.imageUrl!}
+          src={
+            organization?.imageUrl ||
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm372Z3eNKol2BfYtzeYeca090MRQuLlwrXS_8Gw6L8dBKmFJ7UCcAWnUC_ToqGc8vVR0&usqp=CAU"
+          }
           alt="Organization"
           className="rounded-md object-cover"
         />
