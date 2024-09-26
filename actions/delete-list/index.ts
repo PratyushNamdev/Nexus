@@ -6,8 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { InputType, ReturnType } from "./types";
 import { createSafeAction } from "@/lib/create-safe-action";
-import { DeleteBoard } from "./schema";
-import { redirect } from "next/navigation";
+import { DeleteList } from "./schema";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const { orgId, userId } = auth();
@@ -18,29 +17,34 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  const { id } = data;
-
+  const { id, boardId } = data;
+  let list;
   if (orgId) {
     try {
-      await prisma.board.delete({
+      list = await prisma.list.delete({
         where: {
           id,
-          orgId,
+          boardId,
+          board: {
+            orgId,
+          },
         },
       });
     } catch (e) {
       console.log(e);
       return {
-        error: "Cannot Delete Board",
+        error: "Cannot Delete List",
       };
     }
 
-    revalidatePath(`/organization/${orgId}`);
-    redirect(`/organization/${orgId}`);
+    revalidatePath(`/board/${boardId}`);
+    return {
+      data: list,
+    };
   } else {
     return {
       error: "Something went wrong",
     };
   }
 };
-export const deleteBoard = createSafeAction(DeleteBoard, handler);
+export const deleteList = createSafeAction(DeleteList, handler);

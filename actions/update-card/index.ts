@@ -6,8 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { InputType, ReturnType } from "./types";
 import { createSafeAction } from "@/lib/create-safe-action";
-import { DeleteBoard } from "./schema";
-import { redirect } from "next/navigation";
+import { UpdateCard } from "./schema";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const { orgId, userId } = auth();
@@ -18,29 +17,39 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  const { id } = data;
+  const { boardId, id, ...values } = data;
 
+  let card;
   if (orgId) {
     try {
-      await prisma.board.delete({
+      card = await prisma.card.update({
         where: {
           id,
-          orgId,
+          list: {
+            board: {
+              orgId,
+            },
+          },
+        },
+        data: {
+          ...values,
         },
       });
     } catch (e) {
       console.log(e);
       return {
-        error: "Cannot Delete Board",
+        error: "Cannot Update Board",
       };
     }
 
-    revalidatePath(`/organization/${orgId}`);
-    redirect(`/organization/${orgId}`);
+    revalidatePath(`/board/${boardId}`);
+    return {
+      data: card,
+    };
   } else {
     return {
       error: "Something went wrong",
     };
   }
 };
-export const deleteBoard = createSafeAction(DeleteBoard, handler);
+export const updateCard = createSafeAction(UpdateCard, handler);
