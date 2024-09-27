@@ -3,10 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 
 import { InputType, ReturnType } from "./types";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { CreateCard } from "./schema";
+import { createAuditLog } from "@/lib/create-audit-log";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const { orgId, userId } = auth();
@@ -50,6 +52,12 @@ const handler = async (data: InputType): Promise<ReturnType> => {
           listId,
           order: newOrder,
         },
+      });
+      await createAuditLog({
+        entityId:card.id,
+        entityTitle: card.title,
+        entityType: ENTITY_TYPE.CARD,
+        action : ACTION.CREATE
       })
     } catch (e) {
       console.log(e);
