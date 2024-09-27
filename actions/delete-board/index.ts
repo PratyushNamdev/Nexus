@@ -8,6 +8,9 @@ import { InputType, ReturnType } from "./types";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { DeleteBoard } from "./schema";
 import { redirect } from "next/navigation";
+import { createAuditLog } from "@/lib/create-audit-log";
+import { ENTITY_TYPE, ACTION } from "@prisma/client";
+import { decrementAvailableCount } from "@/lib/org-limit";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const { orgId, userId } = auth();
@@ -22,11 +25,18 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   if (orgId) {
     try {
-      await prisma.board.delete({
+      let board = await prisma.board.delete({
         where: {
           id,
           orgId,
         },
+      });
+      await decrementAvailableCount();
+      await createAuditLog({
+        entityTitle: board.title,
+        entityId: board.id,
+        entityType: ENTITY_TYPE.BOARD,
+        action: ACTION.DELETE,
       });
     } catch (e) {
       console.log(e);
