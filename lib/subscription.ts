@@ -21,11 +21,11 @@ export const checkSubscription = async () => {
       stripePriceId: true,
     },
   });
-  if (!orgSubscription) {
+  if (!orgSubscription || !orgSubscription.stripeCurrentPeriodEnd) {
     return false;
   }
   const isValid =
     orgSubscription.stripePriceId &&
-    orgSubscription.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS > Date.now();
-    return !!isValid;
+    orgSubscription.stripeCurrentPeriodEnd?.getTime() + DAY_IN_MS > Date.now();
+  return !!isValid;
 };
