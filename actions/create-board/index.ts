@@ -9,6 +9,7 @@ import { CreateBoard } from "./schema";
 import { createAuditLog } from "@/lib/create-audit-log";
 import { ENTITY_TYPE, ACTION } from "@prisma/client";
 import { incrementAvailableCount, hasAvailableCount } from "@/lib/org-limit";
+import { checkSubscription } from "@/lib/subscription";
 const handler = async (data: InputType): Promise<ReturnType> => {
   const { userId, orgId } = auth();
   if (!userId && !orgId) {
@@ -17,7 +18,8 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
   const canCreate = await hasAvailableCount();
-  if (!canCreate) {
+  const isPro = await checkSubscription();
+  if (!canCreate && !isPro) {
     return {
       error:
         "Maximun limit of active boards is reached. Upgrade to Pro to have unlimited boards",
@@ -57,7 +59,9 @@ const handler = async (data: InputType): Promise<ReturnType> => {
           imageThumbUrl,
         },
       });
-      await incrementAvailableCount();
+      if (!isPro) {
+        await incrementAvailableCount();
+      }
       await createAuditLog({
         entityTitle: board.title,
         entityId: board.id,

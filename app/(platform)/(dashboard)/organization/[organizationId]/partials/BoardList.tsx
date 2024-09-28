@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_FREE_BOARDS } from "@/constants/boards";
 import { getAvailableCount } from "@/lib/org-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 export const BoardList = async () => {
   const { orgId } = auth();
@@ -26,6 +27,7 @@ export const BoardList = async () => {
     },
   });
   const availableCount = await getAvailableCount();
+  const isPro = await checkSubscription();
   return (
     <div className="space-y-4">
       <div className="flex items-center font-semibold text-lg text-neutral-700 ">
@@ -51,15 +53,19 @@ export const BoardList = async () => {
             className="aspect-video relative h-full w-full bg-slate-100 rounded-sm flex flex-col gap-y-1 items-center justify-center hover:opacity-75 transition"
           >
             <p className="text-sm">Create new board</p>
-            <span className="text-xs">{`${
-              MAX_FREE_BOARDS - availableCount
-            } remaining`}</span>
-            <Hint
-              description={`Free Workspaces can have upto 5 open boards. For unlimited boards upgrade this workspace. `}
-              sideOffset={30}
-            >
-              <HelpCircle className="absolute buttom-2 right-2 h-[14px] w-[14px]" />
-            </Hint>
+            <span className="text-xs">
+              {isPro
+                ? "Unlimited"
+                : `${MAX_FREE_BOARDS - availableCount} remaining`}
+            </span>
+            {isPro ? null : (
+              <Hint
+                description={`Free Workspaces can have upto 5 open boards. For unlimited boards upgrade this workspace. `}
+                sideOffset={30}
+              >
+                <HelpCircle className="absolute buttom-2 right-2 h-[14px] w-[14px]" />
+              </Hint>
+            )}
           </div>
         </FormPopover>
       </div>
